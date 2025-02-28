@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metigan Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../dist/metigan.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    label {
+      font-weight: bold;
+    }
+    
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+    
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>Send Email with Metigan</h1>
+  
+  <form id="emailForm">
+    <div>
+      <label for="from">From:</label>
+      <input type="text" id="from" name="from" placeholder="Your Name <your@email.com>" required>
+    </div>
+    
+    <div>
+      <label for="to">To:</label>
+      <input type="text" id="to" name="to" placeholder="recipient@example.com" required>
+    </div>
+    
+    <div>
+      <label for="subject">Subject:</label>
+      <input type="text" id="subject" name="subject" required>
+    </div>
+    
+    <div>
+      <label for="content">Content:</label>
+      <textarea id="content" name="content" rows="10" required></textarea>
+    </div>
+    
+    <div>
+      <label for="attachment">Attachment:</label>
+      <input type="file" id="attachment" name="attachment">
+    </div>
+    
+    <div>
+      <label for="apiKey">API Key:</label>
+      <input type="text" id="apiKey" name="apiKey" required>
+    </div>
+    
+    <button type="submit">Send Email</button>
+  </form>
+  
+  <div id="result"></div>
+  
+  <script>
+    document.getElementById('emailForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const resultElement = document.getElementById('result');
+      resultElement.style.display = 'none';
+      resultElement.className = '';
+      
+      try {
+        // Get form data
+        const from = document.getElementById('from').value;
+        const to = document.getElementById('to').value.split(',').map(email => email.trim());
+        const subject = document.getElementById('subject').value;
+        const content = document.getElementById('content').value;
+        const apiKey = document.getElementById('apiKey').value;
+        const attachmentInput = document.getElementById('attachment');
+        
+        // Initialize Metigan
+        const emailClient = new Metigan(apiKey);
+        
+        // Prepare options
+        const options = {
+          from,
+          recipients: to,
+          subject,
+          content
+        };
+        
+        // Add attachment if selected
+        if (attachmentInput.files.length > 0) {
+          options.attachments = [attachmentInput.files[0]];
+        }
+        
+        // Send email
+        const response = await emailClient.sendEmail(options);
+        
+        // Display result
+        resultElement.innerHTML = `
+          <h3>Email Sent Successfully!</h3>
+          <p>Recipients: ${response.recipientCount}</p>
+          <p>Successful: ${response.successfulEmails.length}</p>
+          <p>Failed: ${response.failedEmails.length}</p>
+        `;
+        resultElement.classList.add('success');
+        resultElement.style.display = 'block';
+      } catch (error) {
+        // Display error
+        resultElement.innerHTML = `
+          <h3>Error</h3>
+          <p>${error.message}</p>
+        `;
+        resultElement.classList.add('error');
+        resultElement.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
