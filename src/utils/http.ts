@@ -5,15 +5,15 @@
 
 import axios, { type AxiosRequestConfig, AxiosError } from "axios";
 import { ApiError, NetworkError } from "../lib/errors";
-import { ErrorCode, getErrorDetails } from "../lib/error-codes";
+import { ErrorCode } from "../lib/error-codes";
 
 /**
  * HTTP error interface
  */
 export interface HttpError {
-  status: number;
-  data: any;
-  message: string;
+    status: number;
+    data: any;
+    message: string;
 }
 
 /**
@@ -22,36 +22,36 @@ export interface HttpError {
  * @returns Standardized ApiError
  */
 function processHttpError(error: unknown): ApiError | NetworkError {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError;
-    
-    // Network errors (no response)
-    if (!axiosError.response) {
-      if (axiosError.code === 'ECONNABORTED') {
-        return new NetworkError(
-          "Request timed out. Please check your network connection.",
-          ErrorCode.TIMEOUT
-        );
-      }
-      return new NetworkError(
-        "Network error. Please check your internet connection.",
-        ErrorCode.NETWORK_ERROR
-      );
+    if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        
+        // Network errors (no response)
+        if (!axiosError.response) {
+            if (axiosError.code === 'ECONNABORTED') {
+                return new NetworkError(
+                    "Request timed out. Please check your network connection.",
+                    ErrorCode.TIMEOUT
+                );
+            }
+            return new NetworkError(
+                "Network error. Please check your internet connection.",
+                ErrorCode.NETWORK_ERROR
+            );
+        }
+        
+        // Server responded with error status
+        const status = axiosError.response.status;
+        const responseData = axiosError.response.data as any;
+        const errorMessage = responseData?.message || responseData?.error || "An error occurred during the request";
+        
+        return ApiError.fromStatus(status, errorMessage);
     }
     
-    // Server responded with error status
-    const status = axiosError.response.status;
-    const responseData = axiosError.response.data as any;
-    const errorMessage = responseData?.message || responseData?.error || axiosError.message;
-    
-    return ApiError.fromStatus(status, errorMessage);
-  }
-  
-  // Unknown errors
-  return new ApiError(
-    "An unexpected error occurred during the request",
-    ErrorCode.UNEXPECTED_ERROR
-  );
+    // Unknown errors
+    return new ApiError(
+        "An unexpected error occurred during the request",
+        ErrorCode.UNEXPECTED_ERROR
+    );
 }
 
 /**
@@ -62,13 +62,13 @@ function processHttpError(error: unknown): ApiError | NetworkError {
  * @throws ApiError if the request fails
  */
 export async function get<T>(url: string, headers?: Record<string, string>): Promise<T> {
-  try {
-    const config: AxiosRequestConfig = { headers };
-    const response = await axios.get(url, config);
-    return response.data;
-  } catch (error: unknown) {
-    throw processHttpError(error);
-  }
+    try {
+        const config: AxiosRequestConfig = { headers };
+        const response = await axios.get(url, config);
+        return response.data;
+    } catch (error: unknown) {
+        throw processHttpError(error);
+    }
 }
 
 /**
@@ -80,13 +80,13 @@ export async function get<T>(url: string, headers?: Record<string, string>): Pro
  * @throws ApiError if the request fails
  */
 export async function post<T>(url: string, data: any, headers?: Record<string, string>): Promise<T> {
-  try {
-    const config: AxiosRequestConfig = { headers };
-    const response = await axios.post(url, data, config);
-    return response.data;
-  } catch (error: unknown) {
-    throw processHttpError(error);
-  }
+    try {
+        const config: AxiosRequestConfig = { headers };
+        const response = await axios.post(url, data, config);
+        return response.data;
+    } catch (error: unknown) {
+        throw processHttpError(error);
+    }
 }
 
 /**
@@ -98,13 +98,13 @@ export async function post<T>(url: string, data: any, headers?: Record<string, s
  * @throws ApiError if the request fails
  */
 export async function put<T>(url: string, data: any, headers?: Record<string, string>): Promise<T> {
-  try {
-    const config: AxiosRequestConfig = { headers };
-    const response = await axios.put(url, data, config);
-    return response.data;
-  } catch (error: unknown) {
-    throw processHttpError(error);
-  }
+    try {
+        const config: AxiosRequestConfig = { headers };
+        const response = await axios.put(url, data, config);
+        return response.data;
+    } catch (error: unknown) {
+        throw processHttpError(error);
+    }
 }
 
 /**
@@ -115,12 +115,11 @@ export async function put<T>(url: string, data: any, headers?: Record<string, st
  * @throws ApiError if the request fails
  */
 export async function deleteRequest<T>(url: string, headers?: Record<string, string>): Promise<T> {
-  try {
-    const config: AxiosRequestConfig = { headers };
-   
-    const response = await axios.delete(url, config);
-    return response.data;
-  } catch (error: unknown) {
-    throw processHttpError(error);
-  }
+    try {
+        const config: AxiosRequestConfig = { headers };
+        const response = await axios.delete(url, config);
+        return response.data;
+    } catch (error: unknown) {
+        throw processHttpError(error);
+    }
 }

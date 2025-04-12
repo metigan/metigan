@@ -1,7 +1,7 @@
 {
   "name": "metigan",
-  "version": "1.0.3",
-  "description": "Email sending library for the Metigan API",
+  "version": "1.0.6",
+  "description": "SDK for integration with Metigan's email and audience management platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -17,17 +17,18 @@
     "metigan",
     "typescript"
   ],
-  "author": "",
+  "author": "Francisco Inoque from SavanaPoint",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.10",
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.2",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
-    "@types/jest": "^29.5.10"
+    "typescript": "^5.3.2"
   },
   "files": [
     "dist",

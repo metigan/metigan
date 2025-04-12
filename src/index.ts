@@ -4,9 +4,10 @@
  */
 
 // Re-export main class and types
-export { default, Metigan } from "./lib/metigan"
-export { MetiganError, ValidationError, ApiError, NetworkError, ContactError } from "./lib/errors"
-export { ErrorCode, ErrorMessages, getErrorDetails } from "./lib/error-codes"
+export { default } from "./lib/metigan";
+export { Metigan } from "./lib/metigan";
+export { MetiganError, ValidationError, ApiError, NetworkError, ContactError } from "./lib/errors";
+export { ErrorCode, ErrorMessages, getErrorDetails } from "./lib/error-codes";
 export type {
   EmailOptions,
   EmailSuccessResponse,
@@ -27,4 +28,4 @@ export type {
   AudienceApiResponse,
   AudienceCreationOptions,
   AudienceUpdateOptions,
-} from "./lib/types"
+} from "./lib/types";
