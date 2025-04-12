@@ -34,9 +34,7 @@ pnpm add metigan
 import Metigan from 'metigan';
 
 // Initialize the SDK with your API key
-const metigan = new Metigan('your_api_key', {
-  baseUrl: 'https://api.metigan.com', // Optional: defaults to localhost
-});
+const metigan = new Metigan('your_api_key');
 
 // Send a simple email
 async function sendWelcomeEmail() {
