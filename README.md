@@ -1,245 +1,429 @@
-# Metigan - Email Sending Library
+### Metigan SDK
 
-![npm version](https://img.shields.io/badge/version-1.1.0-blue.svg)
-![license](https://img.shields.io/badge/license-MIT-green.svg)
 
-A simple and robust library for sending emails through the Metigan API with support for browser and Node.js environments.
+
+A powerful and flexible SDK for integrating with the Metigan email and audience management platform. Metigan SDK provides a simple interface for sending emails, managing contacts, and organizing audiences.
 
 ## Features
 
-- 📧 Simple API for sending emails with HTML content
-- 📎 File attachment support (up to 7MB per file)
-- 🔄 Automatic retries with exponential backoff
-- 📊 Built-in logging and monitoring
-- 🌐 Works in both browser and Node.js environments
-- ✅ Comprehensive email validation
-- 👥 Support for CC, BCC, and Reply-To fields
+- 📧 **Email Sending**: Send transactional and marketing emails with ease
+- 👥 **Contact Management**: Create, update, and manage contacts
+- 🎯 **Audience Management**: Organize contacts into targeted audiences
+- 📝 **Email Templates**: Use templates with variable substitution
+- 📎 **Attachments**: Support for file attachments in various formats
+- 🔄 **Retry Mechanism**: Built-in retry system for improved reliability
+- 🔒 **Error Handling**: Comprehensive error handling and reporting
+
 
 ## Installation
 
-```bash
+```shellscript
+# Using npm
 npm install metigan
-# or
+
+# Using yarn
 yarn add metigan
+
+# Using pnpm
+pnpm add metigan
 ```
 
 ## Quick Start
 
-```javascript
+```typescript
 import Metigan from 'metigan';
 
-// Initialize with your API key
-const metigan = new Metigan('your-api-key');
+// Initialize the SDK with your API key
+const metigan = new Metigan('your_api_key', {
+  baseUrl: 'https://api.metigan.com', // Optional: defaults to localhost
+});
 
-// Send a basic email
-try {
-  const response = await metigan.sendEmail({
-    from: 'sender@example.com',
-    recipients: ['recipient@example.com'],
-    subject: 'Hello from Metigan',
-    content: '<h1>Hello World!</h1><p>This is a test email from Metigan.</p>'
-  });
-  
-  console.log('Email sent successfully!', response);
-} catch (error) {
-  console.error('Failed to send email:', error.message);
+// Send a simple email
+async function sendWelcomeEmail() {
+  try {
+    const response = await metigan.sendEmail({
+      from: 'your-company@example.com',
+      recipients: ['new-user@example.com'],
+      subject: 'Welcome to Our Service',
+      content: '<h1>Welcome!</h1><p>Thank you for signing up.</p>',
+    });
+    
+    console.log('Email sent successfully:', response);
+  } catch (error) {
+    console.error('Failed to send email:', error);
+  }
 }
+
+sendWelcomeEmail();
 ```
 
-## Advanced Usage
+## Configuration
 
-### With Attachments (Browser)
+The Metigan SDK can be configured with various options:
 
-```javascript
-// In a browser environment with file input
-const fileInput = document.getElementById('fileInput');
-const files = fileInput.files;
-
-try {
-  const response = await metigan.sendEmail({
-    from: 'Your Name <sender@example.com>',
-    recipients: ['recipient1@example.com', 'recipient2@example.com'],
-    subject: 'Email with attachments',
-    content: '<p>Please find the attached files.</p>',
-    attachments: Array.from(files),
-    cc: ['cc@example.com'],
-    bcc: ['bcc@example.com'],
-    replyTo: 'reply@example.com'
-  });
+```typescript
+const metigan = new Metigan('your_api_key', {
+ 
+  // User ID for logs (optional)
+  userId: 'your-user-id',
   
-  console.log('Email with attachments sent!', response);
-} catch (error) {
-  console.error('Error:', error.message);
-}
-```
-
-### With Attachments (Node.js)
-
-```javascript
-import fs from 'fs';
-import path from 'path';
-
-// In Node.js environment
-const filePath = path.resolve('./document.pdf');
-const fileBuffer = fs.readFileSync(filePath);
-
-try {
-  const response = await metigan.sendEmail({
-    from: 'sender@example.com',
-    recipients: ['recipient@example.com'],
-    subject: 'Document attached',
-    content: '<p>Here is the document you requested.</p>',
-    attachments: [{
-      buffer: fileBuffer,
-      originalname: 'document.pdf',
-      mimetype: 'application/pdf'
-    }]
-  });
+  // Disable logs (optional)
+  disableLogs: false,
   
-  console.log('Email with attachment sent!', response);
-} catch (error) {
-  console.error('Error:', error.message);
-}
-```
-
-### Custom Configuration
-
-```javascript
-const metigan = new Metigan('your-api-key', {
-  userId: 'user-123', // User ID for logging
-  disableLogs: false, // Enable or disable logging
-  retryCount: 5, // Number of retry attempts
-  retryDelay: 1000, // Base delay between retries in milliseconds
-  timeout: 60000 // Request timeout in milliseconds
+  // Number of retry attempts for failed operations (optional, default: 3)
+  retryCount: 5,
+  
+  // Base time between retry attempts in ms (optional, default: 1000)
+  retryDelay: 2000,
+  
+  // Timeout for requests in ms (optional, default: 30000)
+  timeout: 60000,
 });
 ```
 
-## API Reference
+## Email Sending
 
-### `new Metigan(apiKey, options)`
+### Basic Email
 
-Creates a new Metigan client instance.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `apiKey` | `string` | Your Metigan API key |
-| `options` | `object` | Optional configuration |
-| `options.userId` | `string` | User ID for logs (default: 'anonymous') |
-| `options.disableLogs` | `boolean` | Disable logs (default: false) |
-| `options.retryCount` | `number` | Number of retry attempts (default: 3) |
-| `options.retryDelay` | `number` | Base delay between retries in ms (default: 1000) |
-| `options.timeout` | `number` | Request timeout in ms (default: 30000) |
-
-### `sendEmail(options)`
-
-Sends an email with the provided options.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `options` | `object` | Email options |
-| `options.from` | `string` | Sender email address (or "Name <email>") |
-| `options.recipients` | `string[]` | Array of recipient email addresses |
-| `options.subject` | `string` | Email subject |
-| `options.content` | `string` | Email content (HTML supported) |
-| `options.attachments` | `array` | Optional array of file attachments |
-| `options.cc` | `string[]` | Optional array of CC recipients |
-| `options.bcc` | `string[]` | Optional array of BCC recipients |
-| `options.replyTo` | `string` | Optional reply-to address |
-
-### `enableLogging()` and `disableLogging()`
-
-Enable or disable logging during runtime.
-
-## Attachment Types
-
-The library supports different attachment formats depending on the environment:
-
-### Browser
-
-In the browser, use the native `File` object:
-
-```javascript
-attachments: [
-  fileInput.files[0],
-  // ... more File objects
-]
+```typescript
+await metigan.sendEmail({
+  from: 'your-company@example.com',
+  recipients: ['user@example.com', 'another-user@example.com'],
+  subject: 'Important Update',
+  content: '<h1>New Features Available</h1><p>Check out our latest updates...</p>',
+});
 ```
 
-### Node.js
+### Email with Attachments
 
-In Node.js, use the `NodeAttachment` format:
+```typescript
+// Browser environment (using File objects)
+const file = new File(['file content'], 'document.pdf', { type: 'application/pdf' });
 
-```javascript
-attachments: [{
-  buffer: Buffer.from('...'),
-  originalname: 'filename.ext',
-  mimetype: 'application/octet-stream'
-}]
+// Node.js environment
+const nodeAttachment = {
+  buffer: Buffer.from('file content'),
+  originalname: 'document.pdf',
+  mimetype: 'application/pdf',
+};
+
+// Custom attachment
+const customAttachment = {
+  content: 'file content as string or buffer',
+  filename: 'document.pdf',
+  contentType: 'application/pdf',
+};
+
+await metigan.sendEmail({
+  from: 'your-company@example.com',
+  recipients: ['user@example.com'],
+  subject: 'Document Attached',
+  content: '<p>Please find the attached document.</p>',
+  attachments: [file], // or [nodeAttachment] or [customAttachment]
+});
 ```
 
-### Custom Format
+### Email with Tracking
 
-Or use the custom format that works in any environment:
+```typescript
+const trackingId = metigan.generateTrackingId();
 
-```javascript
-attachments: [{
-  content: Buffer.from('...') || arrayBuffer || 'base64string',
-  filename: 'filename.ext',
-  contentType: 'application/octet-stream'
-}]
+await metigan.sendEmail({
+  from: 'your-company@example.com',
+  recipients: ['user@example.com'],
+  subject: 'Trackable Email',
+  content: '<p>This email will be tracked.</p>',
+  trackingId: trackingId,
+});
+```
+
+### Email with Template
+
+```typescript
+await metigan.sendEmailWithTemplate({
+  from: 'your-company@example.com',
+  recipients: ['user@example.com'],
+  subject: 'Welcome to Our Service',
+  templateId: 'welcome-template-id',
+});
+```
+
+
+
+## Contact Management
+
+### Creating Contacts
+
+```typescript
+await metigan.createContacts(
+  ['user@example.com', 'another-user@example.com'],
+  {
+    createContact: true,
+    audienceId: 'your-audience-id'
+  }
+);
+```
+
+### Getting Contact Details
+
+```typescript
+const contactDetails = await metigan.getContact('user@example.com', 'your-audience-id');
+console.log('Contact details:', contactDetails);
+```
+
+### Listing Contacts
+
+```typescript
+const contacts = await metigan.listContacts({
+  audienceId: 'your-audience-id',
+  page: 1,
+  limit: 50,
+  filters: {
+    company: 'Acme Inc',
+  },
+});
+
+console.log(`Found ${contacts.contacts.length} contacts`);
+```
+
+### Updating a Contact
+
+```typescript
+await metigan.updateContact('user@example.com', {
+  audienceId: 'your-audience-id'
+});
+```
+
+### Deleting a Contact
+
+```typescript
+await metigan.deleteContact('contact-id', 'your-audience-id');
+```
+
+## Audience Management
+
+### Creating an Audience
+
+```typescript
+const newAudience = await metigan.createAudience({
+  name: 'Newsletter Subscribers',
+  description: 'People who subscribed to our monthly newsletter',
+});
+
+console.log('New audience ID:', newAudience.audience.id);
+```
+
+### Getting All Audiences
+
+```typescript
+const audiences = await metigan.getAudiences();
+console.log(`Found ${audiences.audiences.length} audiences`);
+```
+
+### Getting Audience Details
+
+```typescript
+const audienceDetails = await metigan.getAudience('audience-id');
+console.log('Audience details:', audienceDetails);
+```
+
+### Updating an Audience
+
+```typescript
+await metigan.updateAudience('audience-id', {
+  name: 'VIP Newsletter Subscribers',
+  description: 'Premium subscribers to our newsletter',
+});
+```
+
+### Deleting an Audience
+
+```typescript
+await metigan.deleteAudience('audience-id');
+```
+
+## Combined Operations
+
+### Send Email and Create Contacts
+
+```typescript
+await metigan.sendEmailAndCreateContacts({
+  from: 'your-company@example.com',
+  recipients: ['new-user@example.com'],
+  subject: 'Welcome to Our Service',
+  content: '<h1>Welcome!</h1><p>Thank you for signing up.</p>',
+  contactOptions: {
+    createContact: true,
+    audienceId: 'your-audience-id'
+  },
+});
+```
+
+### Send Template Email and Create Contacts
+
+```typescript
+await metigan.sendTemplateAndCreateContacts({
+  from: 'your-company@example.com',
+  recipients: ['new-user@example.com'],
+  subject: 'Welcome to Our Service',
+  templateId: 'welcome-template-id',
+  contactOptions: {
+    createContact: true,
+    audienceId: 'your-audience-id'
+  },
+});
 ```
 
 ## Error Handling
 
-The library uses a custom `MetiganError` class that can be imported:
+The Metigan SDK provides comprehensive error handling with specific error types:
 
-```javascript
-import { Metigan, MetiganError } from 'metigan';
+```typescript
+import { MetiganError, ValidationError, ApiError, NetworkError, ContactError } from 'metigan';
+import { ErrorCode } from 'metigan';
 
 try {
-  await metigan.sendEmail(options);
+  await metigan.sendEmail({
+    // Email options
+  });
 } catch (error) {
   if (error instanceof MetiganError) {
-    // Handle Metigan-specific errors
-    console.error('Metigan error:', error.message);
+    console.error(`Error code: ${error.code}, Message: ${error.message}`);
+    
+    // Handle specific error types
+    if (error instanceof ValidationError) {
+      console.error('Validation failed');
+    } else if (error instanceof ApiError) {
+      console.error(`API error with status: ${error.status}`);
+    } else if (error instanceof NetworkError) {
+      console.error('Network connectivity issue');
+    } else if (error instanceof ContactError) {
+      console.error('Contact operation failed');
+    }
+    
+    // Handle specific error codes
+    switch (error.code) {
+      case ErrorCode.INVALID_API_KEY:
+        console.error('Invalid API key. Please check your credentials.');
+        break;
+      case ErrorCode.MISSING_REQUIRED_FIELD:
+        console.error('Missing required field in request.');
+        break;
+      case ErrorCode.INVALID_EMAIL_FORMAT:
+        console.error('Invalid email format.');
+        break;
+      // Handle other error codes
+    }
   } else {
-    // Handle other errors
-    console.error('Unexpected error:', error);
+    console.error('Unknown error:', error);
   }
 }
 ```
 
-## Response Format
+## API Reference
 
-A successful response will have this structure:
+### Core Methods
 
-```javascript
-{
-  success: true,
-  message: "Emails sent successfully",
-  successfulEmails: [
-    {
-      success: true,
-      recipient: "recipient@example.com",
-      messageId: "message-id-123"
-    }
-  ],
-  failedEmails: [], // Any failed recipients
-  recipientCount: 1,
-  hasAttachments: false,
-  attachmentsCount: 0
-}
+| Method | Description
+|-----|-----
+| `sendEmail(options)` | Sends an email with the specified options
+| `sendEmailWithTemplate(options)` | Sends an email using a template
+| `generateTrackingId()` | Generates a unique tracking ID for email analytics
+
+
+### Contact Methods
+
+| Method | Description
+|-----|-----
+| `createContacts(emails, options)` | Creates contacts in the specified audience
+| `getContact(email, audienceId)` | Gets a contact by email
+| `listContacts(options)` | Lists contacts in an audience
+| `updateContact(email, options)` | Updates a contact
+| `deleteContact(contactId, audienceId)` | Deletes a contact
+
+
+### Audience Methods
+
+| Method | Description
+|-----|-----
+| `createAudience(options)` | Creates a new audience
+| `getAudiences()` | Gets all audiences
+| `getAudience(id)` | Gets an audience by ID
+| `updateAudience(id, options)` | Updates an audience
+| `deleteAudience(id)` | Deletes an audience
+
+
+### Combined Methods
+
+| Method | Description
+|-----|-----
+| `sendEmailAndCreateContacts(options)` | Sends an email and creates contacts in one operation
+| `sendTemplateAndCreateContacts(options)` | Sends a template email and creates contacts in one operation
+
+
+### Utility Methods
+
+| Method | Description
+|-----|-----
+| `enableLogging()` | Enables logging
+| `disableLogging()` | Disables logging
+
+
+## TypeScript Support
+
+The Metigan SDK is written in TypeScript and provides comprehensive type definitions for all methods and options.
+
+```typescript
+import type {
+  EmailOptions,
+  EmailSuccessResponse,
+  EmailErrorResponse,
+  ApiKeyErrorResponse,
+  EmailApiResponse,
+  ContactApiResponse,
+  ContactCreationOptions,
+  ContactQueryOptions,
+  ContactUpdateOptions,
+  ContactData,
+  NodeAttachment,
+  CustomAttachment,
+  TemplateVariables,
+  TemplateFunction,
+  TemplateOptions,
+  TemplateApiResponse,
+  AudienceApiResponse,
+  AudienceCreationOptions,
+  AudienceUpdateOptions,
+} from 'metigan';
 ```
 
-## Limitations
+## Browser Compatibility
 
-- Maximum attachment size: 7MB per file
-- HTML content is supported
+The Metigan SDK is designed to work in both Node.js and browser environments. In browser environments, it uses the native `FormData` and `File` APIs for handling attachments.
 
-## Support
+## Development
 
-For issues, feature requests, or questions, please open an issue on our GitHub repository or contact support@savanapoint.com.
+### Building the SDK
+
+```shellscript
+# Install dependencies
+npm install
+
+# Build the SDK
+npm run build
+
+# Run tests
+npm test
+```
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For support, please contact [support@metigan.com](mailto:support@metigan.com) or open an issue on GitHub.
+
+---
+
+Made with ❤️ by the Metigan Team
